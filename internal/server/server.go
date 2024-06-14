@@ -15,15 +15,21 @@ import (
 type Server struct {
 	port int
 
-	db database.Service
+	db                 database.Service
+	githubClientId     string
+	githubClientSecret string
 }
 
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
-	NewServer := &Server{
-		port: port,
+	githubClientId := os.Getenv("GITHUB_CLIENT_ID")
+	githubClientSecret := os.Getenv("GITHUB_CLIENT_SECRET")
 
-		db: database.New(),
+	NewServer := &Server{
+		port:               port,
+		githubClientId:     githubClientId,
+		githubClientSecret: githubClientSecret,
+		db:                 database.New(),
 	}
 
 	// Declare Server config

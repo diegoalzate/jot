@@ -27,3 +27,5 @@ tmp/
 
 # Project build
 main
+
+private-key.pem

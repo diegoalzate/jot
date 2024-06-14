@@ -1,5 +1,5 @@
-# Simple Makefile for a Go project
-
+#!make
+include .env
 # Build the application
 all: build
 
@@ -29,6 +29,11 @@ docker-down:
 		echo "Falling back to Docker Compose V1"; \
 		docker-compose down; \
 	fi
+
+# starts smee client to proxy webhook events to localhost
+webhook-run:
+	@echo ${WEBHOOK_PROXY_URL}
+	@smee --url ${WEBHOOK_PROXY_URL} --path /api/github/webhook --port ${PORT}
 
 # Test the application
 test:
