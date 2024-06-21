@@ -1,14 +1,15 @@
 package main
 
 import (
-	"jot/internal/server"
-	"log"
+	"fmt"
+
+	"github.com/diegoalzate/jot/internal/server"
 )
 
 func main() {
 	srv := server.NewServer()
 	err := srv.ListenAndServe()
 	if err != nil {
-		log.Fatal(err)
+		panic(fmt.Sprintf("cannot start server: %s", err))
 	}
 }

@@ -2,10 +2,11 @@ package tests
 
 import (
 	"io"
-	"jot/internal/server"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/diegoalzate/jot/internal/server"
 )
 
 func TestHandler(t *testing.T) {

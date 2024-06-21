@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/a-h/templ"
+	"github.com/diegoalzate/jot/cmd/web"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -14,7 +16,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Use(middleware.Logger)
 
 	r.Get("/", s.HelloWorldHandler)
-
+	fileServer := http.FileServer(http.FS(web.Files))
+	r.Handle("/assets/*", fileServer)
+	r.Get("/web", templ.Handler(web.HelloForm()).ServeHTTP)
 	r.Get("/health", s.healthHandler)
 
 	return r
