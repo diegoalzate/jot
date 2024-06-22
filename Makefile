@@ -1,11 +1,12 @@
-#!make
-include .env
+# Simple Makefile for a Go project
+
 # Build the application
 all: build
 
 build:
 	@echo "Building..."
-	
+	@templ generate
+	@./tailwindcss.exe -i cmd/web/assets/css/input.css -o cmd/web/assets/css/output.css
 	@go build -o main cmd/api/main.go
 
 # Run the application
@@ -30,11 +31,6 @@ docker-down:
 		docker-compose down; \
 	fi
 
-# starts smee client to proxy webhook events to localhost
-webhook-run:
-	@echo ${WEBHOOK_PROXY_URL}
-	@smee --url ${WEBHOOK_PROXY_URL} --path /api/github/webhook --port ${PORT}
-
 # Test the application
 test:
 	@echo "Testing..."
@@ -53,7 +49,7 @@ watch:
 	else \
 	    read -p "Go's 'air' is not installed on your machine. Do you want to install it? [Y/n] " choice; \
 	    if [ "$$choice" != "n" ] && [ "$$choice" != "N" ]; then \
-	        go install github.com/cosmtrek/air@latest; \
+	        go install github.com/air-verse/air@latest; \
 	        air; \
 	        echo "Watching...";\
 	    else \

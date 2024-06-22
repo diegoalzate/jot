@@ -29,7 +29,7 @@ func HelloForm() templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-post=\"/hello\" method=\"POST\" hx-target=\"#hello-container\"><input id=\"name\" name=\"name\" type=\"text\"> <button type=\"submit\">Submit</button></form><div id=\"hello-container\"></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-post=\"/hello\" method=\"POST\" hx-target=\"#hello-container\"><input class=\"border\" id=\"name\" name=\"name\" type=\"text\"> <button type=\"submit\">Submit</button></form><div id=\"hello-container\"></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
