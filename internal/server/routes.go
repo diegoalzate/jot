@@ -19,7 +19,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Handle("/assets/*", fileServer)
 
 	// views
-	r.Get("/web", templ.Handler(web.HelloForm()).ServeHTTP)
+	r.Get("/web", templ.Handler(web.HomePage()).ServeHTTP)
 
 	// api
 	r.Get("/health", s.healthHandler)
