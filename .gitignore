@@ -29,3 +29,5 @@ tmp/
 main
 
 private-key.pem
+
+node_modules/
