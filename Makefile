@@ -1,4 +1,5 @@
-# Simple Makefile for a Go project
+include .env
+export
 
 # Build the application
 all: build
@@ -57,5 +58,17 @@ watch:
 	        exit 1; \
 	    fi; \
 	fi
+
+# db query generate
+generate:
+	@sqlc generate
+
+# db up migration
+migrate-up:
+	@cd migrations && goose up
+
+# db down migration
+migrate-down:
+	@cd migrations && goose down
 
 .PHONY: all build run test clean
