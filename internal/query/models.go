@@ -13,7 +13,7 @@ import (
 
 type Identity struct {
 	ID           uuid.UUID
-	UserID       uuid.NullUUID
+	UserID       uuid.UUID
 	ProviderID   string
 	Provider     string
 	IdentityData json.RawMessage

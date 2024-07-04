@@ -10,7 +10,7 @@ CREATE TABLE users(
 
 CREATE TABLE identities(
     id UUID PRIMARY KEY,
-    user_id UUID REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     provider_id TEXT NOT NULL,
     provider VARCHAR(255) NOT NULL,
     identity_data JSONB NOT NULL,
@@ -23,6 +23,6 @@ CREATE TABLE identities(
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE users;
 DROP TABLE identities;
+DROP TABLE users;
 -- +goose StatementEnd
