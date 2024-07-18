@@ -41,7 +41,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Get("/", s.withUser(func(w http.ResponseWriter, r *http.Request, u query.User) {
 		isLoggedIn := false
 
-		log.Print(u)
 		if u.ID != (uuid.UUID{}) {
 			isLoggedIn = true
 		}

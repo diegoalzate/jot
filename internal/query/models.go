@@ -11,6 +11,21 @@ import (
 	"github.com/google/uuid"
 )
 
+type DiscordServer struct {
+	ID        uuid.UUID
+	DiscordID string
+	Name      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type GithubInstallation struct {
+	ID             uuid.UUID
+	InstallationID string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
 type Identity struct {
 	ID           uuid.UUID
 	UserID       uuid.UUID
@@ -19,6 +34,14 @@ type Identity struct {
 	IdentityData json.RawMessage
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+}
+
+type ServerInstallation struct {
+	ID                   uuid.UUID
+	DiscordServerID      uuid.UUID
+	GithubInstallationID uuid.UUID
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
 }
 
 type User struct {

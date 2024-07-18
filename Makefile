@@ -63,6 +63,10 @@ watch:
 generate:
 	@sqlc generate
 
+# db create migration
+migrate-create:
+	@cd migrations && goose create $(NAME) sql
+
 # db up migration
 migrate-up:
 	@cd migrations && goose up
