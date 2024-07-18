@@ -39,13 +39,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	// views
 	r.Get("/", s.withUser(func(w http.ResponseWriter, r *http.Request, u query.User) {
-		isLoggedIn := false
+		// get discord servers user has or the bot is already installed on
 
-		if u.ID != (uuid.UUID{}) {
-			isLoggedIn = true
-		}
-
-		web.HomePage(isLoggedIn, u).Render(r.Context(), w)
+		web.HomePage(u).Render(r.Context(), w)
+		return
 	}))
 
 	// api
@@ -192,24 +189,27 @@ func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
 func (s *Server) withUser(fn authHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookieUserId := sessionManager.GetString(r.Context(), "user_id")
-		log.Print("cookie id", cookieUserId)
 		if cookieUserId == "" {
-			fn(w, r, query.User{})
+			log.Print("user cookie is undefined")
+			web.LoginPage().Render(r.Context(), w)
 			return
 		}
 
 		q := query.New(s.db.Conn)
 
 		userID, err := uuid.Parse(cookieUserId)
+
 		if err != nil {
-			http.Error(w, "failed to parse user ID", http.StatusInternalServerError)
+			log.Printf("failed to parse userid: %v", err)
+			web.LoginPage().Render(r.Context(), w)
 			return
 		}
 
 		dbUser, err := q.GetUserById(context.Background(), userID)
 
 		if err != nil {
-			fn(w, r, query.User{})
+			log.Printf("failed to get user: %v", err)
+			web.LoginPage().Render(r.Context(), w)
 			return
 		}
 

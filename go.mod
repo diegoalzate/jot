@@ -16,7 +16,6 @@ require (
 
 require (
 	github.com/alexedwards/scs/v2 v2.8.0
-	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gorilla/context v1.1.1 // indirect

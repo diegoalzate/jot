@@ -2,17 +2,10 @@ package web
 
 import "github.com/diegoalzate/jot/internal/query"
 
-templ HomePage(isLoggedIn bool, user query.User) {
+templ HomePage(user query.User) {
 	@Base() {
-		if isLoggedIn {
-			<div>
-				<h1>Welcome, { user.Email }</h1>
-				<p>you are logged in</p>
-			</div>
-		} else {
-			<div class="flex flex-col min-h-[100dvh]">
-				<button type="button" hx-get="/api/auth/discord" hx-push-url="true">sign in discord</button>
-			</div>
-		}
+		<div>
+			<h1>Welcome to Jot</h1>
+		</div>
 	}
 }
