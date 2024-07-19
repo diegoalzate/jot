@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/bwmarrin/discordgo"
 	"github.com/diegoalzate/jot/cmd/web"
 	"github.com/diegoalzate/jot/internal/query"
 	"github.com/go-chi/chi/v5"
@@ -29,6 +30,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	sessionManager.Lifetime = 24 * time.Hour
 
 	r := chi.NewRouter()
+
 	r.Use(sessionManager.LoadAndSave)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -40,8 +42,20 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// views
 	r.Get("/", s.withUser(func(w http.ResponseWriter, r *http.Request, u query.User) {
 		// get discord servers user has or the bot is already installed on
+		accessToken := sessionManager.GetString(r.Context(), "discord_token")
+		discordClient, err := discordgo.New("Bearer " + accessToken)
+		if err != nil {
+			log.Fatal("could not create dicord client")
+			return
+		}
 
-		web.HomePage(u).Render(r.Context(), w)
+		guilds, err := discordClient.UserGuilds(20, "", "", false)
+		if err != nil {
+			log.Fatal("could not get guilds")
+			return
+		}
+
+		web.HomePage(u, guilds).Render(r.Context(), w)
 		return
 	}))
 
@@ -64,6 +78,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 			http.Error(w, "failed to renew token", http.StatusInternalServerError)
 			return
 		}
+
+		sessionManager.Put(r.Context(), "discord_token", gothUser.AccessToken)
 
 		// check if user exists
 		q := query.New(s.db.Conn)

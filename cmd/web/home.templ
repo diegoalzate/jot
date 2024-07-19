@@ -1,11 +1,13 @@
 package web
 
 import "github.com/diegoalzate/jot/internal/query"
+import "github.com/bwmarrin/discordgo"
 
-templ HomePage(user query.User) {
+templ HomePage(user query.User, guilds []*discordgo.UserGuild) {
 	@Base() {
 		<div>
 			<h1>Welcome to Jot</h1>
+			<div></div>
 		</div>
 	}
 }

@@ -10,8 +10,17 @@ import (
 
 func (config *Config) setupCookieAuth() {
 	goth.UseProviders(
-		discord.New(config.discord.clientKey, config.discord.clientSecret, "http://localhost:8080/api/auth/discord/callback", discord.ScopeIdentify, discord.ScopeEmail),
-		github.New(config.github.clientKey, config.github.clientSecret, "http://localhost:8080/api/auth/github/callback"),
+		discord.New(
+			config.discord.clientKey,
+			config.discord.clientSecret,
+			"http://localhost:8080/api/auth/discord/callback",
+			discord.ScopeIdentify, discord.ScopeEmail, discord.ScopeGuilds,
+		),
+		github.New(
+			config.github.clientKey,
+			config.github.clientSecret,
+			"http://localhost:8080/api/auth/github/callback",
+		),
 	)
 
 	maxAge := 86400 * 30 // 30 days
