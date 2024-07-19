@@ -50,12 +50,21 @@ func (s *Server) RegisterRoutes() http.Handler {
 		}
 
 		guilds, err := discordClient.UserGuilds(20, "", "", false)
+
 		if err != nil {
 			log.Fatal("could not get guilds")
 			return
 		}
 
-		web.HomePage(u, guilds).Render(r.Context(), w)
+		adminGuilds := []*discordgo.UserGuild{}
+
+		for _, guild := range guilds {
+			if guild.Permissions&discordgo.PermissionManageServer != 0 {
+				adminGuilds = append(adminGuilds, guild)
+			}
+		}
+
+		web.HomePage(u, adminGuilds).Render(r.Context(), w)
 		return
 	}))
 
