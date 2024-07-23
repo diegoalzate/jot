@@ -1,6 +1,7 @@
-package server
+package auth
 
 import (
+	"github.com/diegoalzate/jot/internal/config"
 	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
@@ -8,24 +9,24 @@ import (
 	"github.com/markbates/goth/providers/github"
 )
 
-func (config *Config) setupCookieAuth() {
+func SetupAuthProviders(config *config.Config) {
 	goth.UseProviders(
 		discord.New(
-			config.discord.clientKey,
-			config.discord.clientSecret,
+			config.Discord.Key,
+			config.Discord.Secret,
 			"http://localhost:8080/api/auth/discord/callback",
 			discord.ScopeIdentify, discord.ScopeEmail, discord.ScopeGuilds,
 		),
 		github.New(
-			config.github.clientKey,
-			config.github.clientSecret,
+			config.Github.Key,
+			config.Github.Secret,
 			"http://localhost:8080/api/auth/github/callback",
 		),
 	)
 
 	maxAge := 86400 * 30 // 30 days
 	isProd := false      // Set to true when serving over https
-	store := sessions.NewCookieStore([]byte(config.session.cookieSecret))
+	store := sessions.NewCookieStore([]byte(config.Session.Secret))
 	store.MaxAge(maxAge)
 	store.Options.Path = "/"
 	store.Options.HttpOnly = isProd

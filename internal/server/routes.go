@@ -1,33 +1,17 @@
 package server
 
 import (
-	"context"
-	"database/sql"
-	"encoding/json"
-	"log"
 	"net/http"
-	"time"
 
-	"github.com/alexedwards/scs/v2"
-	"github.com/bwmarrin/discordgo"
 	"github.com/diegoalzate/jot/cmd/web"
-	"github.com/diegoalzate/jot/internal/query"
+	"github.com/diegoalzate/jot/internal/auth"
+	"github.com/diegoalzate/jot/internal/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/google/uuid"
-	"github.com/markbates/goth/gothic"
 )
 
-type authHandler func(http.ResponseWriter, *http.Request, query.User)
-
-var sessionManager *scs.SessionManager
-
 func (s *Server) RegisterRoutes() http.Handler {
-	// sets up goth internal store
-	s.config.setupCookieAuth()
-	// setup cookie auth
-	sessionManager = scs.New()
-	sessionManager.Lifetime = 24 * time.Hour
+	auth.SetupAuthProviders(&s.config)
 
 	r := chi.NewRouter()
 
@@ -39,206 +23,17 @@ func (s *Server) RegisterRoutes() http.Handler {
 	fileServer := http.FileServer(http.FS(web.Files))
 	r.Handle("/assets/*", fileServer)
 
+	middleware := auth.NewMiddleware(s.db, s.session)
+	handlers := handlers.New(s.db, sessionManager)
+
 	// views
-	r.Get("/", s.withUser(func(w http.ResponseWriter, r *http.Request, u query.User) {
-		// get discord servers user has or the bot is already installed on
-		accessToken := sessionManager.GetString(r.Context(), "discord_token")
-		discordClient, err := discordgo.New("Bearer " + accessToken)
-		if err != nil {
-			log.Fatal("could not create dicord client")
-			return
-		}
-
-		guilds, err := discordClient.UserGuilds(20, "", "", false)
-
-		if err != nil {
-			log.Fatal("could not get guilds")
-			return
-		}
-
-		adminGuilds := []*discordgo.UserGuild{}
-
-		for _, guild := range guilds {
-			if guild.Permissions&discordgo.PermissionManageServer != 0 {
-				adminGuilds = append(adminGuilds, guild)
-			}
-		}
-
-		web.HomePage(u, adminGuilds).Render(r.Context(), w)
-		return
-	}))
+	r.Get("/", middleware.WithUser(handlers.ViewHome))
 
 	// api
-	r.Get("/api/health", s.healthHandler)
-	r.Get("/api/auth/{provider}/callback", func(w http.ResponseWriter, r *http.Request) {
-		provider := r.PathValue("provider")
-		r = r.WithContext(context.WithValue(r.Context(), "provider", provider))
-
-		// logs out of gothic store
-		gothUser, err := gothic.CompleteUserAuth(w, r)
-		if err != nil {
-			log.Printf("[ERR]: %#v", err)
-			http.Error(w, "failed to complete authentication callback", http.StatusInternalServerError)
-			return
-		}
-		// app session management
-		err = sessionManager.RenewToken(r.Context())
-		if err != nil {
-			http.Error(w, "failed to renew token", http.StatusInternalServerError)
-			return
-		}
-
-		sessionManager.Put(r.Context(), "discord_token", gothUser.AccessToken)
-
-		// check if user exists
-		q := query.New(s.db.Conn)
-
-		dbIdentity, err := q.GetIdentity(context.Background(), query.GetIdentityParams{
-			ProviderID: gothUser.UserID,
-			Provider:   gothUser.Provider,
-		})
-
-		if err != nil && err != sql.ErrNoRows {
-			log.Printf("[ERR]: %#v", err)
-			http.Error(w, "failed to get identity", http.StatusInternalServerError)
-			return
-		}
-
-		if err == sql.ErrNoRows {
-			// create user
-			id, err := uuid.NewV7()
-
-			if err != nil {
-				log.Printf("[ERR]: %#v", err)
-				http.Error(w, "failed to create uuid", http.StatusInternalServerError)
-				return
-			}
-
-			newUser, err := q.CreateUser(
-				context.Background(),
-				query.CreateUserParams{
-					ID:        id,
-					Username:  gothUser.NickName,
-					Email:     gothUser.Email,
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				},
-			)
-
-			if err != nil {
-				log.Printf("[ERR]: %#v", err)
-				http.Error(w, "failed to create user", http.StatusInternalServerError)
-				return
-			}
-
-			id, err = uuid.NewV7()
-
-			if err != nil {
-				log.Printf("[ERR]: %#v", err)
-				http.Error(w, "failed to create uuid", http.StatusInternalServerError)
-				return
-			}
-
-			rawData, err := json.Marshal(gothUser.RawData)
-
-			if err != nil {
-				log.Printf("[ERR]: %#v", err)
-				http.Error(w, "failed to convert raw data to bytes", http.StatusInternalServerError)
-				return
-			}
-
-			_, err = q.CreateIdentity(context.Background(), query.CreateIdentityParams{
-				ID:           id,
-				UserID:       newUser.ID,
-				Provider:     gothUser.Provider,
-				ProviderID:   gothUser.UserID,
-				IdentityData: rawData,
-				CreatedAt:    time.Now(),
-				UpdatedAt:    time.Now(),
-			})
-
-			log.Printf("[SUCCESS]:user: %#v", newUser)
-			http.Redirect(w, r, "/", http.StatusPermanentRedirect)
-			return
-		}
-
-		dbUser, err := q.GetUserById(context.Background(), dbIdentity.UserID)
-
-		if err != nil {
-			log.Printf("[ERR]: %#v", err)
-			http.Error(w, "failed to get user", http.StatusInternalServerError)
-			return
-		}
-
-		// redirect home
-		sessionManager.Put(r.Context(), "user_id", dbUser.ID.String())
-		http.Redirect(w, r, "/", http.StatusPermanentRedirect)
-		return
-	})
-
-	r.Get("/api/auth/{provider}/logout", func(w http.ResponseWriter, r *http.Request) {
-		provider := r.PathValue("provider")
-		r = r.WithContext(context.WithValue(context.Background(), "provider", provider))
-
-		gothic.Logout(w, r)
-		sessionManager.Destroy(r.Context())
-		w.Header().Set("Location", "/")
-		w.WriteHeader(http.StatusTemporaryRedirect)
-	})
-
-	r.Get("/api/auth/{provider}", func(w http.ResponseWriter, r *http.Request) {
-		provider := r.PathValue("provider")
-		r = r.WithContext(context.WithValue(context.Background(), "provider", provider))
-		// try to get the user without re-authenticating
-		if gothUser, err := gothic.CompleteUserAuth(w, r); err == nil {
-			log.Println("[ALREADY LOGGED IN]", gothUser)
-		} else {
-			url, err := gothic.GetAuthURL(w, r)
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-
-			w.Header().Add("HX-Redirect", url)
-		}
-	})
+	r.Get("/api/health", handlers.HealthCheck)
+	r.Get("/api/auth/{provider}/callback", handlers.OauthCallback)
+	r.Get("/api/auth/{provider}/logout", handlers.Logout)
+	r.Get("/api/auth/{provider}", handlers.Login)
 
 	return r
-}
-
-func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
-	jsonResp, _ := json.Marshal(s.db.Health())
-	_, _ = w.Write(jsonResp)
-}
-
-func (s *Server) withUser(fn authHandler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		cookieUserId := sessionManager.GetString(r.Context(), "user_id")
-		if cookieUserId == "" {
-			log.Print("user cookie is undefined")
-			web.LoginPage().Render(r.Context(), w)
-			return
-		}
-
-		q := query.New(s.db.Conn)
-
-		userID, err := uuid.Parse(cookieUserId)
-
-		if err != nil {
-			log.Printf("failed to parse userid: %v", err)
-			web.LoginPage().Render(r.Context(), w)
-			return
-		}
-
-		dbUser, err := q.GetUserById(context.Background(), userID)
-
-		if err != nil {
-			log.Printf("failed to get user: %v", err)
-			web.LoginPage().Render(r.Context(), w)
-			return
-		}
-
-		fn(w, r, dbUser)
-		return
-	}
 }
