@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -33,6 +34,8 @@ func (h *Handlers) ViewHome(w http.ResponseWriter, r *http.Request, u query.User
 		}
 	}
 
-	web.HomePage(u, adminGuilds).Render(r.Context(), w)
+	installLink := fmt.Sprintf("https://discord.com/oauth2/authorize?client_id=%v", h.config.Discord.Key)
+
+	web.HomePage(u, adminGuilds, installLink).Render(r.Context(), w)
 	return
 }

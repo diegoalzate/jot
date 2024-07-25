@@ -24,7 +24,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Handle("/assets/*", fileServer)
 
 	middleware := auth.NewMiddleware(s.db, s.session)
-	handlers := handlers.New(s.db, sessionManager)
+	handlers := handlers.New(s.db, s.session, s.config)
 
 	// views
 	r.Get("/", middleware.WithUser(handlers.ViewHome))

@@ -3,7 +3,7 @@ package web
 import "github.com/diegoalzate/jot/internal/query"
 import "github.com/bwmarrin/discordgo"
 
-templ HomePage(user query.User, guilds []*discordgo.UserGuild) {
+templ HomePage(user query.User, guilds []*discordgo.UserGuild, installLink string) {
 	@Base() {
 		<div>
 			<h1>Welcome to Jot</h1>
@@ -16,14 +16,13 @@ templ HomePage(user query.User, guilds []*discordgo.UserGuild) {
 							</div>
 						</div>
 						<div class="p-6 grid gap-4">
-							<button
+							<a
 								class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
-								as="a"
-								href="https://example.com/install-bot"
+								href={ templ.SafeURL(installLink) }
 								target="_blank"
 							>
 								Install Bot
-							</button>
+							</a>
 						</div>
 					</div>
 				}
