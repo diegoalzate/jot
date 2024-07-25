@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func (s *Server) RegisterRoutes() http.Handler {
+func (s *WebServer) RegisterRoutes() http.Handler {
 	auth.SetupAuthProviders(&s.config)
 
 	r := chi.NewRouter()
@@ -34,6 +34,18 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Get("/api/auth/{provider}/callback", handlers.OauthCallback)
 	r.Get("/api/auth/{provider}/logout", handlers.Logout)
 	r.Get("/api/auth/{provider}", handlers.Login)
+
+	return r
+}
+
+func (s *ApiServer) RegisterRoutes() http.Handler {
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+
+	// file server
+	fileServer := http.FileServer(http.FS(web.Files))
+	r.Handle("/assets/*", fileServer)
 
 	return r
 }

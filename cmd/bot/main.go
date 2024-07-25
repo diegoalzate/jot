@@ -60,6 +60,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 func guildCreate(s *discordgo.Session, e *discordgo.GuildCreate) {
 	fmt.Println("bot was installed on a server")
+	// Authorization: Bearer YOUR_BOT_TOKEN
+	// we would want to create a server instance on the db at this point
+	// api should handle that part
+	// then on web server show that we can now install github app for this
+
+	// to do the api req we should have a session client with a 20s timeout
 }
 
 func guildDelete(s *discordgo.Session, e *discordgo.GuildDelete) {

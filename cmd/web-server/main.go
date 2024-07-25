@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	srv := server.NewServer()
+	srv := server.NewWebServer()
 	fmt.Println("listening on " + srv.Addr)
 	err := srv.ListenAndServe()
 	if err != nil {
