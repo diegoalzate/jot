@@ -10,16 +10,20 @@ import (
 type Config struct {
 	Port    int
 	Discord struct {
-		Key    string
-		Secret string
+		Oauth OauthConfig
+		Bot   struct {
+			Token string
+		}
 	}
-	Github struct {
-		Key    string
-		Secret string
-	}
+	Github  OauthConfig
 	Session struct {
 		Secret string
 	}
+}
+
+type OauthConfig struct {
+	Key    string
+	Secret string
 }
 
 func New() Config {
@@ -28,21 +32,26 @@ func New() Config {
 	githubClientSecret := os.Getenv("GITHUB_SECRET")
 	discordClientKey := os.Getenv("DISCORD_KEY")
 	discordClientSecret := os.Getenv("DISCORD_SECRET")
+	discordBotToken := os.Getenv("DISCORD_BOT_TOKEN")
 	cookieSecret := os.Getenv("COOKIE_SECRET")
 
 	return Config{
 		Port: port,
 		Discord: struct {
-			Key    string
-			Secret string
+			Oauth OauthConfig
+			Bot   struct {
+				Token string
+			}
 		}{
-			Key:    discordClientKey,
-			Secret: discordClientSecret,
+			Oauth: OauthConfig{
+				Key:    discordClientKey,
+				Secret: discordClientSecret,
+			},
+			Bot: struct{ Token string }{
+				Token: discordBotToken,
+			},
 		},
-		Github: struct {
-			Key    string
-			Secret string
-		}{
+		Github: OauthConfig{
 			Key:    githubClientKey,
 			Secret: githubClientSecret,
 		},

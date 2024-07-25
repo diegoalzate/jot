@@ -34,7 +34,7 @@ func (h *Handlers) ViewHome(w http.ResponseWriter, r *http.Request, u query.User
 		}
 	}
 
-	installLink := fmt.Sprintf("https://discord.com/oauth2/authorize?client_id=%v", h.config.Discord.Key)
+	installLink := fmt.Sprintf("https://discord.com/oauth2/authorize?client_id=%v", h.config.Discord.Oauth.Key)
 
 	web.HomePage(u, adminGuilds, installLink).Render(r.Context(), w)
 	return

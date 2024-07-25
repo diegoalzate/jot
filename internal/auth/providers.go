@@ -12,8 +12,8 @@ import (
 func SetupAuthProviders(config *config.Config) {
 	goth.UseProviders(
 		discord.New(
-			config.Discord.Key,
-			config.Discord.Secret,
+			config.Discord.Oauth.Key,
+			config.Discord.Oauth.Secret,
 			"http://localhost:8080/api/auth/discord/callback",
 			discord.ScopeIdentify, discord.ScopeEmail, discord.ScopeGuilds,
 		),

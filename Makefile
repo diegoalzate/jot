@@ -1,18 +1,29 @@
 include .env
 export
 
-# Build the application
 all: build
 
-build:
+# Build the web server
+build-web-server:
 	@echo "Building..."
 	@templ generate
 	@npx tailwindcss -i cmd/web/assets/css/input.css -o cmd/web/assets/css/output.css
-	@go build -o main cmd/api/main.go
+	@go build -o main cmd/web-server/main.go
 
-# Run the application
-run:
-	@go run cmd/api/main.go
+# Run the web-server
+run-web-server:
+	@go run cmd/web-server/main.go
+
+# build the bot
+build-bot:
+	@echo "Building..."
+	@go build -o main cmd/bot/main.go
+
+# Run the bot
+run-bot:
+	@go run cmd/bot/main.go
+
+run: build run-web-server run-bot
 
 # Create DB container
 docker-run:
@@ -75,4 +86,4 @@ migrate-up:
 migrate-down:
 	@cd migrations && goose down
 
-.PHONY: all build run test clean
+.PHONY: all build run test clean watch generate migrate-create migrate-up migrate-down

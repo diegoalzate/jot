@@ -1,65 +1,32 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/google/go-github/v62/github"
-	_ "github.com/joho/godotenv/autoload"
+	"github.com/diegoalzate/jot/internal/config"
 )
 
 func main() {
-	DISCORD_BOT_TOKEN := os.Getenv("DISCORD_BOT_TOKEN")
-	GITHUB_PERSONAL_ACCESS_TOKEN := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	config := config.New()
 
-	if DISCORD_BOT_TOKEN == "" {
-		fmt.Println("DISCORD_BOT_TOKEN is required to run this app")
-		return
-	}
-
-	if GITHUB_PERSONAL_ACCESS_TOKEN == "" {
-		fmt.Println("GITHUB_PERSONAL_ACCESS_TOKEN is required to run this app")
-		return
-	}
-
-	discord, err := discordgo.New("Bot " + DISCORD_BOT_TOKEN)
-	client := github.NewClient(nil).WithAuthToken(GITHUB_PERSONAL_ACCESS_TOKEN)
+	discord, err := discordgo.New("Bot " + config.Discord.Bot.Token)
 
 	if err != nil {
 		fmt.Println("failed to start discord bot: ", err)
 		return
 	}
 
-	discord.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
-		if m.Author.ID == s.State.User.ID {
-			return
-		}
-
-		if m.Content == "ping" {
-			// lets see a repo's issues
-			repos, _, err := client.Repositories.ListByAuthenticatedUser(context.Background(), nil)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			for _, repo := range repos {
-				s.ChannelMessageSend(m.ChannelID, *repo.Name)
-			}
-
-		}
-
-		if m.Content == "pong" {
-			s.ChannelMessageSend(m.ChannelID, "Ping!")
-		}
-	})
+	// add for discord
+	discord.AddHandler(guildCreate)
+	discord.AddHandler(guildDelete)
+	discord.AddHandler(messageCreate)
 
 	// add permissions we require
-	discord.Identify.Intents = discordgo.IntentsGuildMessages
+	discord.Identify.Intents = discordgo.IntentsGuilds | discordgo.IntentsGuildMessages
 
 	// open ws connection to discord
 	err = discord.Open()
@@ -75,4 +42,26 @@ func main() {
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
+}
+
+func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Author.ID == s.State.User.ID {
+		return
+	}
+
+	if m.Content == "ping" {
+		s.ChannelMessageSend(m.ChannelID, "Pong!")
+	}
+
+	if m.Content == "pong" {
+		s.ChannelMessageSend(m.ChannelID, "Ping!")
+	}
+}
+
+func guildCreate(s *discordgo.Session, e *discordgo.GuildCreate) {
+	fmt.Println("bot was installed on a server")
+}
+
+func guildDelete(s *discordgo.Session, e *discordgo.GuildDelete) {
+	fmt.Println("bot was removed from a server")
 }
