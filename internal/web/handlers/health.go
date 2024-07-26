@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (h *Handlers) HealthCheck(w http.ResponseWriter, r *http.Request) {
+func (h *Web) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	jsonResp, _ := json.Marshal(h.db.Health())
 	_, _ = w.Write(jsonResp)
 }

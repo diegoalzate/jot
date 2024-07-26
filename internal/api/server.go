@@ -1,4 +1,4 @@
-package server
+package api
 
 import (
 	"fmt"
@@ -10,25 +10,31 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
-type ApiServer struct {
+type Server struct {
 	db     database.Service
 	config config.Config
 }
 
-func NewApiServer() *http.Server {
-	NewServer := &ApiServer{
+func NewServer() (*http.Server, error) {
+	NewServer := &Server{
 		config: config.New(),
 		db:     database.New(),
+	}
+
+	handler, err := NewServer.RegisterRoutes()
+
+	if err != nil {
+		return &http.Server{}, err
 	}
 
 	// Declare Server config
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", NewServer.config.Port),
-		Handler:      NewServer.RegisterRoutes(),
+		Handler:      handler,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
-	return server
+	return server, nil
 }

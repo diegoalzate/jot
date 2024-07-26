@@ -1,16 +1,16 @@
-package server
+package web
 
 import (
 	"net/http"
 
 	"github.com/diegoalzate/jot/cmd/web"
-	"github.com/diegoalzate/jot/internal/auth"
-	"github.com/diegoalzate/jot/internal/handlers"
+	"github.com/diegoalzate/jot/internal/web/auth"
+	"github.com/diegoalzate/jot/internal/web/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func (s *WebServer) RegisterRoutes() http.Handler {
+func (s *Server) RegisterRoutes() (http.Handler, error) {
 	auth.SetupAuthProviders(&s.config)
 
 	r := chi.NewRouter()
@@ -24,7 +24,11 @@ func (s *WebServer) RegisterRoutes() http.Handler {
 	r.Handle("/assets/*", fileServer)
 
 	middleware := auth.NewMiddleware(s.db, s.session)
-	handlers := handlers.New(s.db, s.session, s.config)
+	handlers, err := handlers.New(s.db, s.config, s.session)
+
+	if err != nil {
+		return r, err
+	}
 
 	// views
 	r.Get("/", middleware.WithUser(handlers.ViewHome))
@@ -35,17 +39,5 @@ func (s *WebServer) RegisterRoutes() http.Handler {
 	r.Get("/api/auth/{provider}/logout", handlers.Logout)
 	r.Get("/api/auth/{provider}", handlers.Login)
 
-	return r
-}
-
-func (s *ApiServer) RegisterRoutes() http.Handler {
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-
-	// file server
-	fileServer := http.FileServer(http.FS(web.Files))
-	r.Handle("/assets/*", fileServer)
-
-	return r
+	return r, nil
 }

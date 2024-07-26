@@ -13,7 +13,7 @@ import (
 	"github.com/markbates/goth/gothic"
 )
 
-func (h *Handlers) OauthCallback(w http.ResponseWriter, r *http.Request) {
+func (h *Web) OauthCallback(w http.ResponseWriter, r *http.Request) {
 	provider := r.PathValue("provider")
 	r = r.WithContext(context.WithValue(r.Context(), "provider", provider))
 
@@ -119,7 +119,7 @@ func (h *Handlers) OauthCallback(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (h *Handlers) Logout(w http.ResponseWriter, r *http.Request) {
+func (h *Web) Logout(w http.ResponseWriter, r *http.Request) {
 	provider := r.PathValue("provider")
 	r = r.WithContext(context.WithValue(context.Background(), "provider", provider))
 	gothic.Logout(w, r)
@@ -128,7 +128,7 @@ func (h *Handlers) Logout(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
-func (h *Handlers) Login(w http.ResponseWriter, r *http.Request) {
+func (h *Web) Login(w http.ResponseWriter, r *http.Request) {
 	provider := r.PathValue("provider")
 	r = r.WithContext(context.WithValue(context.Background(), "provider", provider))
 	// try to get the user without re-authenticating

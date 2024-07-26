@@ -16,6 +16,7 @@ require (
 
 require (
 	github.com/alexedwards/scs/v2 v2.8.0
+	github.com/go-chi/chi v1.5.5
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gorilla/context v1.1.1 // indirect

@@ -1,21 +1,27 @@
 package handlers
 
 import (
+	"errors"
+
 	"github.com/alexedwards/scs/v2"
 	"github.com/diegoalzate/jot/internal/config"
 	"github.com/diegoalzate/jot/internal/database"
 )
 
-type Handlers struct {
+type Web struct {
 	db      database.Service
 	config  config.Config
 	session *scs.SessionManager
 }
 
-func New(db database.Service, session *scs.SessionManager, config config.Config) Handlers {
-	return Handlers{
-		db:      db,
-		session: session,
-		config:  config,
+func New(db database.Service, config config.Config, session *scs.SessionManager) (Web, error) {
+	if session == nil {
+		return Web{}, errors.New("session can not be nil")
 	}
+
+	return Web{
+		db:      db,
+		config:  config,
+		session: session,
+	}, nil
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/diegoalzate/jot/internal/query"
 )
 
-func (h *Handlers) ViewHome(w http.ResponseWriter, r *http.Request, u query.User) {
+func (h *Web) ViewHome(w http.ResponseWriter, r *http.Request, u query.User) {
 	// get discord servers user has or the bot is already installed on
 	accessToken := h.session.GetString(r.Context(), "discord_token")
 	discordClient, err := discordgo.New("Bearer " + accessToken)
