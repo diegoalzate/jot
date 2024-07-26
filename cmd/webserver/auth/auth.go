@@ -5,21 +5,37 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/diegoalzate/jot/cmd/web"
+	"github.com/diegoalzate/jot/internal/database"
 	"github.com/diegoalzate/jot/internal/query"
 	"github.com/google/uuid"
 )
 
-func (m *Middleware) WithUser(fn AuthHandler) http.HandlerFunc {
+type AuthHandler func(http.ResponseWriter, *http.Request, query.User)
+
+type AuthContext struct {
+	db      database.Service
+	session *scs.SessionManager
+}
+
+func New(db database.Service, session *scs.SessionManager) AuthContext {
+	return AuthContext{
+		db:      db,
+		session: session,
+	}
+}
+
+func (a *AuthContext) WithUser(fn AuthHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		cookieUserId := m.session.GetString(r.Context(), "user_id")
+		cookieUserId := a.session.GetString(r.Context(), "user_id")
 		if cookieUserId == "" {
 			log.Print("user cookie is undefined")
 			web.LoginPage().Render(r.Context(), w)
 			return
 		}
 
-		q := query.New(m.db.Conn)
+		q := query.New(a.db.Conn)
 
 		userID, err := uuid.Parse(cookieUserId)
 

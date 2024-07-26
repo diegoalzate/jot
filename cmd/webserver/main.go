@@ -1,13 +1,11 @@
-package main
+package webserver
 
 import (
 	"fmt"
-
-	"github.com/diegoalzate/jot/internal/web"
 )
 
 func main() {
-	srv, err := web.NewServer()
+	srv, err := NewServer()
 
 	if err != nil {
 		panic(fmt.Sprintf("cannot create server: %s", err))

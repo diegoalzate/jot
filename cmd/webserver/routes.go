@@ -1,11 +1,11 @@
-package web
+package webserver
 
 import (
 	"net/http"
 
 	"github.com/diegoalzate/jot/cmd/web"
-	"github.com/diegoalzate/jot/internal/web/auth"
-	"github.com/diegoalzate/jot/internal/web/handlers"
+	"github.com/diegoalzate/jot/cmd/webserver/auth"
+	"github.com/diegoalzate/jot/cmd/webserver/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -23,7 +23,7 @@ func (s *Server) RegisterRoutes() (http.Handler, error) {
 	fileServer := http.FileServer(http.FS(web.Files))
 	r.Handle("/assets/*", fileServer)
 
-	middleware := auth.NewMiddleware(s.db, s.session)
+	middleware := auth.New(s.db, s.session)
 	handlers, err := handlers.New(s.db, s.config, s.session)
 
 	if err != nil {
@@ -34,10 +34,10 @@ func (s *Server) RegisterRoutes() (http.Handler, error) {
 	r.Get("/", middleware.WithUser(handlers.ViewHome))
 
 	// api
-	r.Get("/api/health", handlers.HealthCheck)
-	r.Get("/api/auth/{provider}/callback", handlers.OauthCallback)
-	r.Get("/api/auth/{provider}/logout", handlers.Logout)
-	r.Get("/api/auth/{provider}", handlers.Login)
+	r.Get("/health", handlers.HealthCheck)
+	r.Get("/auth/{provider}/callback", handlers.OauthCallback)
+	r.Get("/auth/{provider}/logout", handlers.Logout)
+	r.Get("/auth/{provider}", handlers.Login)
 
 	return r, nil
 }

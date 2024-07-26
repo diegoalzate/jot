@@ -1,13 +1,11 @@
-package main
+package api
 
 import (
 	"fmt"
-
-	"github.com/diegoalzate/jot/internal/api"
 )
 
 func main() {
-	srv, err := api.NewServer()
+	srv, err := NewServer()
 
 	if err != nil {
 		panic(fmt.Sprintf("cannot create server: %s", err))
