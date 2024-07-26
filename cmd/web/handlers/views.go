@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/diegoalzate/jot/cmd/web"
+	"github.com/diegoalzate/jot/cmd/ui"
 	"github.com/diegoalzate/jot/internal/query"
 )
 
@@ -36,6 +36,6 @@ func (h *Web) ViewHome(w http.ResponseWriter, r *http.Request, u query.User) {
 
 	installLink := fmt.Sprintf("https://discord.com/oauth2/authorize?client_id=%v", h.config.Discord.Oauth.Key)
 
-	web.HomePage(u, adminGuilds, installLink).Render(r.Context(), w)
+	ui.HomePage(u, adminGuilds, installLink).Render(r.Context(), w)
 	return
 }

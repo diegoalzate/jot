@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/alexedwards/scs/v2"
-	"github.com/diegoalzate/jot/cmd/web"
+	"github.com/diegoalzate/jot/cmd/ui"
 	"github.com/diegoalzate/jot/internal/database"
 	"github.com/diegoalzate/jot/internal/query"
 	"github.com/google/uuid"
@@ -31,7 +31,7 @@ func (a *AuthContext) WithUser(fn AuthHandler) http.HandlerFunc {
 		cookieUserId := a.session.GetString(r.Context(), "user_id")
 		if cookieUserId == "" {
 			log.Print("user cookie is undefined")
-			web.LoginPage().Render(r.Context(), w)
+			ui.LoginPage().Render(r.Context(), w)
 			return
 		}
 
@@ -41,7 +41,7 @@ func (a *AuthContext) WithUser(fn AuthHandler) http.HandlerFunc {
 
 		if err != nil {
 			log.Printf("failed to parse userid: %v", err)
-			web.LoginPage().Render(r.Context(), w)
+			ui.LoginPage().Render(r.Context(), w)
 			return
 		}
 
@@ -49,7 +49,7 @@ func (a *AuthContext) WithUser(fn AuthHandler) http.HandlerFunc {
 
 		if err != nil {
 			log.Printf("failed to get user: %v", err)
-			web.LoginPage().Render(r.Context(), w)
+			ui.LoginPage().Render(r.Context(), w)
 			return
 		}
 

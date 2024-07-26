@@ -4,15 +4,15 @@ export
 all: build
 
 # Build the web server
-build-web-server:
+build-web:
 	@echo "Building..."
 	@templ generate
-	@npx tailwindcss -i cmd/web/assets/css/input.css -o cmd/web/assets/css/output.css
-	@go build -o main cmd/web-server/main.go
+	@npx tailwindcss -i cmd/ui/assets/css/input.css -o cmd/ui/assets/css/output.css
+	@go build -o main cmd/web/main.go
 
-# Run the web-server
-run-web-server:
-	@go run cmd/web-server/main.go
+# Run the web
+run-web:
+	@go run cmd/web/main.go
 
 # build the bot
 build-bot:
@@ -23,7 +23,7 @@ build-bot:
 run-bot:
 	@go run cmd/bot/main.go
 
-run: build run-web-server run-bot
+run: build run-web run-bot
 
 # Create DB container
 docker-run:

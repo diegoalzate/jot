@@ -1,4 +1,4 @@
-package webserver
+package server
 
 import (
 	"fmt"
@@ -19,7 +19,7 @@ type Server struct {
 	config  config.Config
 }
 
-func NewServer() (*http.Server, error) {
+func New() (*http.Server, error) {
 	sessionManager = scs.New()
 	sessionManager.Lifetime = 24 * time.Hour
 

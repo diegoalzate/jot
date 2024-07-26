@@ -1,4 +1,4 @@
-package api
+package server
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ type Server struct {
 	config config.Config
 }
 
-func NewServer() (*http.Server, error) {
+func New() (*http.Server, error) {
 	NewServer := &Server{
 		config: config.New(),
 		db:     database.New(),

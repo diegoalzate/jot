@@ -1,11 +1,11 @@
-package webserver
+package server
 
 import (
 	"net/http"
 
-	"github.com/diegoalzate/jot/cmd/web"
-	"github.com/diegoalzate/jot/cmd/webserver/auth"
-	"github.com/diegoalzate/jot/cmd/webserver/handlers"
+	"github.com/diegoalzate/jot/cmd/ui"
+	"github.com/diegoalzate/jot/cmd/web/auth"
+	"github.com/diegoalzate/jot/cmd/web/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -20,7 +20,7 @@ func (s *Server) RegisterRoutes() (http.Handler, error) {
 	r.Use(middleware.Recoverer)
 
 	// file server
-	fileServer := http.FileServer(http.FS(web.Files))
+	fileServer := http.FileServer(http.FS(ui.Files))
 	r.Handle("/assets/*", fileServer)
 
 	middleware := auth.New(s.db, s.session)
