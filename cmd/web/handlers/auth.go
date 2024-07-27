@@ -52,7 +52,7 @@ func (h *Web) OauthCallback(w http.ResponseWriter, r *http.Request) {
 		id, err := uuid.NewV7()
 
 		if err != nil {
-			log.Printf("[ERR]: %#v", err)
+			log.Printf("[ERR]: %#v", err.Error())
 			http.Error(w, "failed to create uuid", http.StatusInternalServerError)
 			return
 		}

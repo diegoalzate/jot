@@ -13,6 +13,39 @@ import (
 	"github.com/google/uuid"
 )
 
+const createDiscordServer = `-- name: CreateDiscordServer :one
+INSERT INTO discord_servers (id, discord_id, name, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, discord_id, name, created_at, updated_at
+`
+
+type CreateDiscordServerParams struct {
+	ID        uuid.UUID
+	DiscordID string
+	Name      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (q *Queries) CreateDiscordServer(ctx context.Context, arg CreateDiscordServerParams) (DiscordServer, error) {
+	row := q.db.QueryRowContext(ctx, createDiscordServer,
+		arg.ID,
+		arg.DiscordID,
+		arg.Name,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+	)
+	var i DiscordServer
+	err := row.Scan(
+		&i.ID,
+		&i.DiscordID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createIdentity = `-- name: CreateIdentity :one
 INSERT INTO identities (id, user_id, provider, provider_id, identity_data, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7)

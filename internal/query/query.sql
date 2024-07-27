@@ -17,3 +17,8 @@ WHERE provider_id = $1 AND provider = $2;
 INSERT INTO identities (id, user_id, provider, provider_id, identity_data, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id, user_id, provider, provider_id, identity_data, created_at, updated_at;
+
+-- name: CreateDiscordServer :one
+INSERT INTO discord_servers (id, discord_id, name, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, discord_id, name, created_at, updated_at;
