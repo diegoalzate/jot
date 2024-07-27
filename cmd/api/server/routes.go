@@ -16,7 +16,7 @@ func (s *Server) RegisterRoutes() (http.Handler, error) {
 	handlers := handlers.New(s.db, s.config)
 
 	// api
-	r.Post("/api/servers", handlers.CreateServer)
+	r.Post("/api/servers", s.protectedRoute(handlers.CreateServer))
 
 	return r, nil
 }

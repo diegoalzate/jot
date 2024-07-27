@@ -1,22 +1,37 @@
 package server
 
 import (
+	"log"
 	"net/http"
-
-	"github.com/diegoalzate/jot/internal/config"
-	"github.com/diegoalzate/jot/internal/database"
-	"github.com/diegoalzate/jot/internal/query"
+	"strings"
 )
 
-type AuthHandler func(http.ResponseWriter, *http.Request, query.DiscordServer)
-
-type AuthContext struct {
-	db     database.Service
-	config config.Config
-}
-
-func WithDiscordServer(fn AuthHandler) http.HandlerFunc {
+func (s *Server) protectedRoute(fn http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// check auth headers for discord token
+		authHeader := r.Header.Get("Authorization")
+
+		if authHeader == "" {
+			log.Printf("authorization header is not defined")
+			http.Error(w, "authorization header is not defined", http.StatusBadRequest)
+			return
+		}
+
+		bearerToken := strings.Fields(authHeader)[1]
+
+		if bearerToken == "" {
+			log.Printf("bearer token is not defined")
+			http.Error(w, "bearer token is not defined", http.StatusBadRequest)
+			return
+		}
+
+		if bearerToken != s.config.Discord.Bot.Token {
+			log.Printf("bearer token is not authorized")
+			http.Error(w, "bearer token is not authorized", http.StatusUnauthorized)
+			return
+		}
+
+		fn(w, r)
+		return
 	}
 }
