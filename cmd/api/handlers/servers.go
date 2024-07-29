@@ -44,6 +44,12 @@ func (h *HandlerContext) CreateDiscordServer(w http.ResponseWriter, r *http.Requ
 		UpdatedAt: time.Now(),
 	})
 
+	if err != nil {
+		log.Printf("[ERR]: %#v", err.Error())
+		http.Error(w, "failed to write to db", http.StatusInternalServerError)
+		return
+	}
+
 	log.Printf("created server: %v", newServer)
 	return
 }
