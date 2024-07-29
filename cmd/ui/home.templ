@@ -1,28 +1,48 @@
 package ui
 
 import "github.com/diegoalzate/jot/internal/query"
-import "github.com/bwmarrin/discordgo"
 
-templ HomePage(user query.User, guilds []*discordgo.UserGuild, installLink string) {
+type Server struct {
+	ID        string
+	Name      string
+	Installed bool
+}
+
+type HomePageProps struct {
+	User        query.User
+	InstallLink string
+	Servers     []Server
+}
+
+templ HomePage(props HomePageProps) {
 	@Base() {
 		<div>
 			<h1>Welcome to Jot</h1>
 			<div class="flex flex-wrap">
-				for _, guild := range guilds {
+				for _, server := range props.Servers {
 					<div class="rounded-lg border bg-card text-card-foreground shadow-sm w-full max-w-md" data-v0-t="card">
 						<div class="flex-col space-y-1.5 p-6 flex items-center gap-4">
 							<div class="space-y-1">
-								<h3 class="whitespace-nowrap text-2xl font-semibold leading-none tracking-tight">{ guild.Name }</h3>
+								<h3 class="whitespace-nowrap text-2xl font-semibold leading-none tracking-tight">{ server.Name }</h3>
 							</div>
 						</div>
 						<div class="p-6 grid gap-4">
-							<a
-								class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
-								href={ templ.SafeURL(installLink) }
-								target="_blank"
-							>
-								Install Bot
-							</a>
+							if server.Installed {
+								<a
+									class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+									href={ templ.SafeURL("/servers/" + server.ID) }
+								>
+									Open Bot
+								</a>
+							} else {
+								<a
+									class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+									href={ templ.SafeURL(props.InstallLink) }
+									target="_blank"
+								>
+									Install Bot
+								</a>
+							}
 						</div>
 					</div>
 				}

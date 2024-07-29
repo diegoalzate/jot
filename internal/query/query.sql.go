@@ -128,6 +128,25 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const getDiscordServerByDiscordId = `-- name: GetDiscordServerByDiscordId :one
+SELECT id, discord_id, name 
+FROM discord_servers
+WHERE discord_id = $1
+`
+
+type GetDiscordServerByDiscordIdRow struct {
+	ID        uuid.UUID
+	DiscordID string
+	Name      string
+}
+
+func (q *Queries) GetDiscordServerByDiscordId(ctx context.Context, discordID string) (GetDiscordServerByDiscordIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getDiscordServerByDiscordId, discordID)
+	var i GetDiscordServerByDiscordIdRow
+	err := row.Scan(&i.ID, &i.DiscordID, &i.Name)
+	return i, err
+}
+
 const getIdentity = `-- name: GetIdentity :one
 SELECT id, user_id, provider
 FROM identities

@@ -22,3 +22,8 @@ RETURNING id, user_id, provider, provider_id, identity_data, created_at, updated
 INSERT INTO discord_servers (id, discord_id, name, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id, discord_id, name, created_at, updated_at;
+
+-- name: GetDiscordServerByDiscordId :one
+SELECT id, discord_id, name 
+FROM discord_servers
+WHERE discord_id = $1;

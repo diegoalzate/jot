@@ -36,6 +36,33 @@ func (h *Web) ViewHome(w http.ResponseWriter, r *http.Request, u query.User) {
 
 	installLink := fmt.Sprintf("https://discord.com/oauth2/authorize?client_id=%v", h.config.Discord.Oauth.Key)
 
-	ui.HomePage(u, adminGuilds, installLink).Render(r.Context(), w)
+	q := query.New(h.db.Conn)
+
+	var servers []ui.Server
+
+	for _, adminGuild := range adminGuilds {
+		_, err := q.GetDiscordServerByDiscordId(r.Context(), adminGuild.ID)
+
+		if err != nil {
+			servers = append(servers, ui.Server{
+				ID:        adminGuild.ID,
+				Name:      adminGuild.Name,
+				Installed: true,
+			})
+			return
+		}
+
+		servers = append(servers, ui.Server{
+			ID:        adminGuild.ID,
+			Name:      adminGuild.Name,
+			Installed: true,
+		})
+	}
+
+	ui.HomePage(ui.HomePageProps{
+		InstallLink: installLink,
+		User:        u,
+		Servers:     servers,
+	}).Render(r.Context(), w)
 	return
 }

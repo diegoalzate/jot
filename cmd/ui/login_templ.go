@@ -29,7 +29,7 @@ func LoginPage() templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col min-h-[100dvh]\"><button type=\"button\" hx-get=\"/api/auth/discord\" hx-push-url=\"true\">sign in discord</button></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col min-h-[100dvh]\"><button type=\"button\" hx-get=\"/auth/discord\" hx-push-url=\"true\">sign in discord</button></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

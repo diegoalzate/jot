@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"fmt"
+
 	"github.com/diegoalzate/jot/internal/config"
 	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
@@ -14,13 +16,13 @@ func SetupAuthProviders(config *config.Config) {
 		discord.New(
 			config.Discord.Oauth.Key,
 			config.Discord.Oauth.Secret,
-			"http://localhost:8080/api/auth/discord/callback",
+			fmt.Sprintf("http://localhost:%v/auth/discord/callback", config.Ports.Web),
 			discord.ScopeIdentify, discord.ScopeEmail, discord.ScopeGuilds,
 		),
 		github.New(
 			config.Github.Key,
 			config.Github.Secret,
-			"http://localhost:8080/api/auth/github/callback",
+			fmt.Sprintf("http://localhost:%v/auth/github/callback", config.Ports.Web),
 		),
 	)
 
