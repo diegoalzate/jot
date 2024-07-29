@@ -23,7 +23,11 @@ build-bot:
 run-bot:
 	@go run cmd/bot/main.go
 
-run: build run-web run-bot
+# Run the api
+run-api:
+	@go run cmd/api/main.go
+
+run: build run-api run-web run-bot
 
 # Create DB container
 docker-run:

@@ -26,6 +26,8 @@ func (s *Server) protectedRoute(fn http.HandlerFunc) http.HandlerFunc {
 		}
 
 		if bearerToken != s.config.Discord.Bot.Token {
+			log.Printf("expected: %v", s.config.Discord.Bot.Token)
+			log.Printf("actual: %v", bearerToken)
 			log.Printf("bearer token is not authorized")
 			http.Error(w, "bearer token is not authorized", http.StatusUnauthorized)
 			return

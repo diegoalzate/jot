@@ -8,7 +8,11 @@ import (
 )
 
 type Config struct {
-	Port    int
+	Ports struct {
+		Api int
+		Web int
+	}
+
 	Discord struct {
 		Oauth OauthConfig
 		Bot   struct {
@@ -27,7 +31,8 @@ type OauthConfig struct {
 }
 
 func New() Config {
-	port, _ := strconv.Atoi(os.Getenv("PORT"))
+	apiPort, _ := strconv.Atoi(os.Getenv("API_PORT"))
+	webPort, _ := strconv.Atoi(os.Getenv("WEB_PORT"))
 	githubClientKey := os.Getenv("GITHUB_KEY")
 	githubClientSecret := os.Getenv("GITHUB_SECRET")
 	discordClientKey := os.Getenv("DISCORD_KEY")
@@ -36,7 +41,13 @@ func New() Config {
 	cookieSecret := os.Getenv("COOKIE_SECRET")
 
 	return Config{
-		Port: port,
+		Ports: struct {
+			Api int
+			Web int
+		}{
+			Api: apiPort,
+			Web: webPort,
+		},
 		Discord: struct {
 			Oauth OauthConfig
 			Bot   struct {
