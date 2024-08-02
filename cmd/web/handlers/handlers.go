@@ -8,18 +8,18 @@ import (
 	"github.com/diegoalzate/jot/internal/database"
 )
 
-type Web struct {
+type Handlers struct {
 	db      database.Service
 	config  config.Config
 	session *scs.SessionManager
 }
 
-func New(db database.Service, config config.Config, session *scs.SessionManager) (Web, error) {
+func New(db database.Service, config config.Config, session *scs.SessionManager) (Handlers, error) {
 	if session == nil {
-		return Web{}, errors.New("session can not be nil")
+		return Handlers{}, errors.New("session can not be nil")
 	}
 
-	return Web{
+	return Handlers{
 		db:      db,
 		config:  config,
 		session: session,

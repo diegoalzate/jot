@@ -4,18 +4,14 @@ import (
 	"net/http"
 
 	"github.com/diegoalzate/jot/cmd/ui"
-	"github.com/diegoalzate/jot/cmd/web/auth"
 	"github.com/diegoalzate/jot/cmd/web/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
 func (s *Server) RegisterRoutes() (http.Handler, error) {
-	auth.SetupAuthProviders(&s.config)
-
 	r := chi.NewRouter()
 
-	r.Use(sessionManager.LoadAndSave)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
@@ -23,7 +19,6 @@ func (s *Server) RegisterRoutes() (http.Handler, error) {
 	fileServer := http.FileServer(http.FS(ui.Files))
 	r.Handle("/assets/*", fileServer)
 
-	middleware := auth.New(s.db, s.session)
 	handlers, err := handlers.New(s.db, s.config, s.session)
 
 	if err != nil {
@@ -31,13 +26,9 @@ func (s *Server) RegisterRoutes() (http.Handler, error) {
 	}
 
 	// views
-	r.Get("/", middleware.WithUser(handlers.ViewHome))
+	r.Get("/", handlers.ViewHome)
 
 	// api
 	r.Get("/health", handlers.HealthCheck)
-	r.Get("/auth/{provider}/callback", handlers.OauthCallback)
-	r.Get("/auth/{provider}/logout", handlers.Logout)
-	r.Get("/auth/{provider}", handlers.Login)
-
 	return r, nil
 }

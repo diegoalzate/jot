@@ -27,7 +27,11 @@ run-bot:
 run-api:
 	@go run cmd/api/main.go
 
-run: build run-api run-web run-bot
+# turn on web hook proxy
+webhook-proxy:
+	@ngrok http --domain=$(LOCAL_DEVELOPMENT_WEBHOOK_DOMAIN) ${API_PORT}
+
+run: build webhook-proxy run-api run-web run-bot
 
 # Create DB container
 docker-run:
@@ -78,7 +82,7 @@ watch:
 generate:
 	@sqlc generate
 
-# db create migration
+# db create migration, expects NAME to be set
 migrate-create:
 	@cd migrations && goose create $(NAME) sql
 

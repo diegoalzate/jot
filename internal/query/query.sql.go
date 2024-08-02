@@ -7,183 +7,39 @@ package query
 
 import (
 	"context"
-	"encoding/json"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
 )
 
-const createDiscordServer = `-- name: CreateDiscordServer :one
-INSERT INTO discord_servers (id, discord_id, name, created_at, updated_at)
+const createTask = `-- name: CreateTask :one
+INSERT INTO tasks (id, name, description, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id, discord_id, name, created_at, updated_at
+RETURNING id, name, description, created_at, updated_at
 `
 
-type CreateDiscordServerParams struct {
-	ID        uuid.UUID
-	DiscordID string
-	Name      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+type CreateTaskParams struct {
+	ID          uuid.UUID
+	Name        string
+	Description sql.NullString
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
-func (q *Queries) CreateDiscordServer(ctx context.Context, arg CreateDiscordServerParams) (DiscordServer, error) {
-	row := q.db.QueryRowContext(ctx, createDiscordServer,
+func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, error) {
+	row := q.db.QueryRowContext(ctx, createTask,
 		arg.ID,
-		arg.DiscordID,
 		arg.Name,
+		arg.Description,
 		arg.CreatedAt,
 		arg.UpdatedAt,
 	)
-	var i DiscordServer
+	var i Task
 	err := row.Scan(
 		&i.ID,
-		&i.DiscordID,
 		&i.Name,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const createIdentity = `-- name: CreateIdentity :one
-INSERT INTO identities (id, user_id, provider, provider_id, identity_data, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, user_id, provider, provider_id, identity_data, created_at, updated_at
-`
-
-type CreateIdentityParams struct {
-	ID           uuid.UUID
-	UserID       uuid.UUID
-	Provider     string
-	ProviderID   string
-	IdentityData json.RawMessage
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-}
-
-type CreateIdentityRow struct {
-	ID           uuid.UUID
-	UserID       uuid.UUID
-	Provider     string
-	ProviderID   string
-	IdentityData json.RawMessage
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-}
-
-func (q *Queries) CreateIdentity(ctx context.Context, arg CreateIdentityParams) (CreateIdentityRow, error) {
-	row := q.db.QueryRowContext(ctx, createIdentity,
-		arg.ID,
-		arg.UserID,
-		arg.Provider,
-		arg.ProviderID,
-		arg.IdentityData,
-		arg.CreatedAt,
-		arg.UpdatedAt,
-	)
-	var i CreateIdentityRow
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.Provider,
-		&i.ProviderID,
-		&i.IdentityData,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const createUser = `-- name: CreateUser :one
-INSERT INTO users (id, username, email, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id, username, email, created_at, updated_at
-`
-
-type CreateUserParams struct {
-	ID        uuid.UUID
-	Username  string
-	Email     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser,
-		arg.ID,
-		arg.Username,
-		arg.Email,
-		arg.CreatedAt,
-		arg.UpdatedAt,
-	)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Email,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const getDiscordServerByDiscordId = `-- name: GetDiscordServerByDiscordId :one
-SELECT id, discord_id, name 
-FROM discord_servers
-WHERE discord_id = $1
-`
-
-type GetDiscordServerByDiscordIdRow struct {
-	ID        uuid.UUID
-	DiscordID string
-	Name      string
-}
-
-func (q *Queries) GetDiscordServerByDiscordId(ctx context.Context, discordID string) (GetDiscordServerByDiscordIdRow, error) {
-	row := q.db.QueryRowContext(ctx, getDiscordServerByDiscordId, discordID)
-	var i GetDiscordServerByDiscordIdRow
-	err := row.Scan(&i.ID, &i.DiscordID, &i.Name)
-	return i, err
-}
-
-const getIdentity = `-- name: GetIdentity :one
-SELECT id, user_id, provider
-FROM identities
-WHERE provider_id = $1 AND provider = $2
-`
-
-type GetIdentityParams struct {
-	ProviderID string
-	Provider   string
-}
-
-type GetIdentityRow struct {
-	ID       uuid.UUID
-	UserID   uuid.UUID
-	Provider string
-}
-
-func (q *Queries) GetIdentity(ctx context.Context, arg GetIdentityParams) (GetIdentityRow, error) {
-	row := q.db.QueryRowContext(ctx, getIdentity, arg.ProviderID, arg.Provider)
-	var i GetIdentityRow
-	err := row.Scan(&i.ID, &i.UserID, &i.Provider)
-	return i, err
-}
-
-const getUserById = `-- name: GetUserById :one
-SELECT id, username, email, created_at, updated_at
-FROM users
-WHERE id = $1
-`
-
-func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUserById, id)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Email,
+		&i.Description,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
