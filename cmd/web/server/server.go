@@ -36,7 +36,7 @@ func New() (*http.Server, error) {
 
 	// Declare Server config
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", NewServer.config.Ports.Web),
+		Addr:         fmt.Sprintf(":%d", NewServer.config.Port),
 		Handler:      handler,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
