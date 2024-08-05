@@ -1,7 +1,9 @@
 package main
 
-import "log"
+import (
+	"github.com/diegoalzate/jot/cmd/cli/cmd"
+)
 
 func main() {
-	log.Default()
+	cmd.Execute()
 }
