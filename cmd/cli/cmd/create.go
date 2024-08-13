@@ -2,34 +2,32 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
-	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/diegoalzate/jot/cmd/cli/ui"
+	"github.com/diegoalzate/jot/internal/database"
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	rootCmd.AddCommand(createCmd)
-}
+var title string
 
-var createCmd = &cobra.Command{
-	Use:   "create",
-	Short: "saves a task",
-	Run: func(cmd *cobra.Command, args []string) {
-		str := strings.Join(args, " ")
-
-		if str == "" {
-			t := tea.NewProgram(ui.New())
-			if _, err := t.Run(); err != nil {
-				fmt.Printf("Alas, there's been an error: %v", err)
-				os.Exit(1)
+func newCreateCmd(db database.Service) *cobra.Command {
+	return &cobra.Command{
+		Use:   "create",
+		Short: "saves a task",
+		Run: func(cmd *cobra.Command, args []string) {
+			if title == "" {
+				t := tea.NewProgram(ui.New())
+				if _, err := t.Run(); err != nil {
+					fmt.Printf("Alas, there's been an error: %v", err)
+					os.Exit(1)
+				}
 			}
-		}
 
-		log.Print(str)
-		return
-	},
+			// assume we have title and we will save this
+
+			return
+		},
+	}
 }

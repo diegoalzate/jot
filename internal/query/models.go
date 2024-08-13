@@ -7,12 +7,10 @@ package query
 import (
 	"database/sql"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Task struct {
-	ID          uuid.UUID
+	ID          string
 	Name        string
 	Description sql.NullString
 	CreatedAt   time.Time

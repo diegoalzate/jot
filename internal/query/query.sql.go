@@ -9,18 +9,16 @@ import (
 	"context"
 	"database/sql"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 const createTask = `-- name: CreateTask :one
 INSERT INTO tasks (id, name, description, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5)
+VALUES (?, ?, ?, ?, ?)
 RETURNING id, name, description, created_at, updated_at
 `
 
 type CreateTaskParams struct {
-	ID          uuid.UUID
+	ID          string
 	Name        string
 	Description sql.NullString
 	CreatedAt   time.Time

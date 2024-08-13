@@ -18,11 +18,7 @@ type Service struct {
 }
 
 var (
-	database   = os.Getenv("DB_DATABASE")
-	password   = os.Getenv("DB_PASSWORD")
-	username   = os.Getenv("DB_USERNAME")
-	port       = os.Getenv("DB_PORT")
-	host       = os.Getenv("DB_HOST")
+	dbUrl      = os.Getenv("DB_URL")
 	dbInstance *sql.DB
 )
 
@@ -33,8 +29,7 @@ func New() Service {
 			Conn: dbInstance,
 		}
 	}
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", username, password, host, port, database)
-	db, err := sql.Open("pgx", connStr)
+	db, err := sql.Open("sqlite3", dbUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -102,6 +97,6 @@ func (s *Service) Health() map[string]string {
 // If the connection is successfully closed, it returns nil.
 // If an error occurs while closing the connection, it returns the error.
 func (s *Service) Close() error {
-	log.Printf("Disconnected from database: %s", database)
+	log.Printf("Disconnected from database: %s", dbUrl)
 	return s.Conn.Close()
 }

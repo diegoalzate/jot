@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -35,6 +36,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEnter, tea.KeyCtrlC, tea.KeyEsc:
+			f, err := tea.LogToFile("log.txt", "debug")
+
+			if err != nil {
+				fmt.Println("fatal:", err)
+				os.Exit(1)
+			}
+
+			defer f.Close()
+
+			fmt.Fprint(f, m.textInput.Value())
+
+			// save jot to sql
+
 			return m, tea.Quit
 		}
 
