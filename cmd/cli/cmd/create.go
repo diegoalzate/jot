@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -13,7 +14,9 @@ import (
 var title string
 
 func newCreateCmd(db database.Service) *cobra.Command {
-	return &cobra.Command{
+	var title string
+
+	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "saves a task",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -26,8 +29,13 @@ func newCreateCmd(db database.Service) *cobra.Command {
 			}
 
 			// assume we have title and we will save this
-
+			log.Print(title)
 			return
 		},
 	}
+
+	// flags
+	cmd.Flags().StringVarP(&title, "title", "t", "", "")
+
+	return cmd
 }

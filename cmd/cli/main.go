@@ -7,5 +7,8 @@ import (
 
 func main() {
 	db := database.New()
+	// since this is cli we need to close this somehow
+	defer db.Close()
+
 	cmd.Execute(db)
 }
