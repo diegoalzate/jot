@@ -1,19 +1,28 @@
 package ui
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
+	"log"
 	"os"
+	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/diegoalzate/jot/internal/database"
+	"github.com/diegoalzate/jot/internal/query"
+	"github.com/google/uuid"
 )
 
 type model struct {
+	database  database.Service
 	textInput textinput.Model
 	err       error
+	context   context.Context
 }
 
-func New() model {
+func New(db database.Service) model {
 	ti := textinput.New()
 	ti.Placeholder = "write your thoughts down here"
 	ti.Focus()
@@ -21,6 +30,8 @@ func New() model {
 	return model{
 		textInput: ti,
 		err:       nil,
+		database:  db,
+		context:   context.Background(),
 	}
 }
 
@@ -47,7 +58,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			fmt.Fprint(f, m.textInput.Value())
 
-			// save jot to sql
+			q := query.New(m.database.Conn)
+
+			_, err = q.CreateTask(m.context, query.CreateTaskParams{
+				ID:          uuid.New().String(),
+				Name:        m.textInput.Value(),
+				Description: sql.NullString{},
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			})
+
+			if err != nil {
+				log.Printf("failed to save task: %v", err)
+			}
 
 			return m, tea.Quit
 		}

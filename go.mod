@@ -38,6 +38,7 @@ require (
 
 require (
 	github.com/alexedwards/scs/v2 v2.8.0
+	github.com/google/uuid v1.6.0
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 )
