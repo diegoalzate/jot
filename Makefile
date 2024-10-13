@@ -14,23 +14,6 @@ build-web:
 run-web:
 	@go run cmd/web/main.go
 
-# build the bot
-build-bot:
-	@echo "Building..."
-	@go build -o main cmd/bot/main.go
-
-# Run the bot
-run-bot:
-	@go run cmd/bot/main.go
-
-# Run the api
-run-api:
-	@go run cmd/api/main.go
-
-# turn on web hook proxy
-webhook-proxy:
-	@ngrok http --domain=$(LOCAL_DEVELOPMENT_WEBHOOK_DOMAIN) ${API_PORT}
-
 run: build webhook-proxy run-api run-web run-bot
 
 # Create DB container

@@ -11,8 +11,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var title string
-
 func newCreateCmd(db database.Service) *cobra.Command {
 	var title string
 
