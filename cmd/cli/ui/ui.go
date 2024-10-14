@@ -56,8 +56,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			defer f.Close()
 
-			fmt.Fprint(f, m.textInput.Value())
-
 			q := query.New(m.database.Conn)
 
 			_, err = q.CreateTask(m.context, query.CreateTaskParams{

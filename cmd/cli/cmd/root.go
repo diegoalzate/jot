@@ -24,6 +24,7 @@ func newRootCmd(db database.Service) *cobra.Command {
 func Execute(db database.Service) {
 	rootCmd := newRootCmd(db)
 	rootCmd.AddCommand(newCreateCmd(db))
+	rootCmd.AddCommand(newListCmd(db))
 	rootCmd.AddCommand(newVersionCmd())
 
 	if err := rootCmd.Execute(); err != nil {

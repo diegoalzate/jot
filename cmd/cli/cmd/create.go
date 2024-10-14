@@ -32,7 +32,7 @@ func newCreateCmd(db database.Service) *cobra.Command {
 
 			q := query.New(db.Conn)
 
-			_, err := q.CreateTask(cmd.Context(), query.CreateTaskParams{
+			task, err := q.CreateTask(cmd.Context(), query.CreateTaskParams{
 				ID:          uuid.New().String(),
 				Name:        title,
 				Description: sql.NullString{},
@@ -43,6 +43,8 @@ func newCreateCmd(db database.Service) *cobra.Command {
 			if err != nil {
 				log.Printf("failed to save task: %v", err)
 			}
+
+			cmd.Printf("Task created successfully! ID: %v\n", task.ID)
 		},
 	}
 
